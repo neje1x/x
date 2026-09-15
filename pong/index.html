@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="bg"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <div id="screen">
+        <!-- Score -->
+        <div id="score">
+            <div class="score-side">
+                <div class="score-label" id="label-left">MODER</div>
+                <div id="score-left" class="score-num blue">0</div>
+            </div>
+            <div id="score-center">
+                <div id="score-sep">VS</div>
+                <div id="gem-display">💎 <span id="gem-count">0</span></div>
+            </div>
+            <div class="score-side">
+                <div class="score-label" id="label-right">RDEČ</div>
+                <div id="score-right" class="score-num red">0</div>
+            </div>
+        </div>
+
+        <!-- Canvas -->
+        <div id="canvas-wrap">
+            <canvas id="canvas"></canvas>
+
+            <!-- Streak popup -->
+            <div id="streak-popup" class="hidden"></div>
+
+            <!-- Gem reward popup -->
+            <div id="gem-popup" class="hidden"></div>
+
+            <!-- In-game powerup bar -->
+            <div id="powerup-bar"></div>
+
+            <!-- Play button -->
+            <div id="play-btn-wrap">
+                <button id="btn-play">▶</button>
+            </div>
+            <div id="msg"></div>
+        </div>
+
+        <!-- MENU OVERLAY -->
+        <div id="menu-overlay">
+            <div id="menu-box">
+
+                <div id="step-mode">
+                    <div id="menu-title">
+                        <span class="blue">P</span><span class="red">O</span><span class="blue">N</span><span class="red">G</span>
+                    </div>
+                    <div class="menu-divider"></div>
+                    <p class="menu-label">Izberi način igre</p>
+                    <div class="menu-cards">
+                        <button class="menu-card" id="btn-2p">
+                            <div class="card-icon">👥</div>
+                            <div class="card-title">Dva igralca</div>
+                            <div class="card-sub">Igram s prijatelji</div>
+                        </button>
+                        <button class="menu-card" id="btn-vs-ai">
+                            <div class="card-icon">🎮</div>
+                            <div class="card-title">En igralec</div>
+                            <div class="card-sub"><em>Igraj sam</em></div>
+                        </button>
+                    </div>
+                    <div class="menu-boss-row">
+                        <button class="menu-card boss-card" id="btn-boss">
+                            <div class="card-icon">💀</div>
+                            <div class="boss-card-info">
+                                <div class="card-title">Boss Fight</div>
+                                <div class="card-sub">Zdržiš 50 odbojev?</div>
+                            </div>
+                            <div class="card-keys boss-keys">50 odbojev</div>
+                        </button>
+                    </div>
+
+                    <div class="menu-bottom-btns">
+                        <button class="lb-open-btn" id="btn-lb">🏆 Leaderboard</button>
+                        <button class="lb-open-btn" id="btn-shop">💎 Shop</button>
+                    </div>
+                </div>
+
+                <div id="step-diff" class="hidden">
+                    <div id="menu-title-small">Težavnost robota</div>
+                    <div class="menu-divider"></div>
+                    <div class="diff-cards">
+                        <button class="diff-card easy" data-diff="easy">
+                            <div class="diff-icon">😴</div>
+                            <div class="diff-name">Lahka</div>
+                            <div class="diff-desc">Za začetnike</div>
+                        </button>
+                        <button class="diff-card medium" data-diff="medium">
+                            <div class="diff-icon">😐</div>
+                            <div class="diff-name">Srednja</div>
+                            <div class="diff-desc">Normalna igra</div>
+                        </button>
+                        <button class="diff-card hard" data-diff="hard">
+                            <div class="diff-icon">😈</div>
+                            <div class="diff-name">Težka</div>
+                            <div class="diff-desc">Skoraj nezmagljiv</div>
+                        </button>
+                    </div>
+                    <button class="back-btn" id="btn-back">← Nazaj</button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- LEADERBOARD OVERLAY -->
+        <div id="lb-overlay" class="hidden">
+            <div id="lb-box">
+                <div id="lb-title">🏆 Leaderboard</div>
+                <div class="menu-divider"></div>
+
+                <div class="lb-section-title">Dva igralca</div>
+                <table class="lb-table">
+                    <thead><tr><th>Igralec</th><th>Zmage</th><th>Porazi</th><th>%</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="blue">● Moder</span></td>
+                            <td id="lb-2p-blue-w">0</td>
+                            <td id="lb-2p-blue-l">0</td>
+                            <td id="lb-2p-blue-pct">—</td>
+                        </tr>
+                        <tr>
+                            <td><span class="red">● Rdeč</span></td>
+                            <td id="lb-2p-red-w">0</td>
+                            <td id="lb-2p-red-l">0</td>
+                            <td id="lb-2p-red-pct">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="lb-section-title" style="margin-top:20px;">En igralec (vs Robot)</div>
+                <table class="lb-table">
+                    <thead><tr><th>Težavnost</th><th>Zmage</th><th>Porazi</th><th>%</th></tr></thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="easy-c">😴 Lahka</span></td>
+                            <td id="lb-ai-easy-w">0</td>
+                            <td id="lb-ai-easy-l">0</td>
+                            <td id="lb-ai-easy-pct">—</td>
+                        </tr>
+                        <tr>
+                            <td><span class="med-c">😐 Srednja</span></td>
+                            <td id="lb-ai-med-w">0</td>
+                            <td id="lb-ai-med-l">0</td>
+                            <td id="lb-ai-med-pct">—</td>
+                        </tr>
+                        <tr>
+                            <td><span class="hard-c">😈 Težka</span></td>
+                            <td id="lb-ai-hard-w">0</td>
+                            <td id="lb-ai-hard-l">0</td>
+                            <td id="lb-ai-hard-pct">—</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="lb-footer">
+                    <button class="lb-reset-btn" id="btn-lb-reset">🗑 Pobriši statistiko</button>
+                    <button class="back-btn" id="btn-lb-back">← Nazaj</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SHOP OVERLAY -->
+        <div id="shop-overlay" class="hidden">
+            <div id="shop-box">
+                <div id="shop-title">💎 Shop</div>
+                <div id="shop-gems">Tvoji gemi: <span id="shop-gem-count">0</span> 💎</div>
+                <div class="shop-tabs">
+                    <button class="shop-tab active" id="tab-power">⚡ Power Shop</button>
+                    <button class="shop-tab" id="tab-skin">🎨 Skin Shop</button>
+                </div>
+                <div id="shop-items"></div>
+                <div id="shop-skins" class="hidden"></div>
+                <button class="back-btn" id="btn-shop-back">← Nazaj</button>
+            </div>
+        </div>
+
+        <!-- WIN OVERLAY -->
+        <div id="win-overlay" class="hidden">
+            <div id="win-box">
+                <div id="win-icon">🏆</div>
+                <div id="win-text"></div>
+                <div id="final-score"></div>
+                <div id="win-buttons">
+                    <button id="btn-again">▶ Igraj znova</button>
+                    <button id="btn-menu">☰ Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
